@@ -41,7 +41,29 @@ const networkConfig = {
         lendingPoolAddressesProvider:
             "0x5E52dEc931FFb32f609681B8438A51c675cc232d",
         daiEthPriceFeed: "0xb4c4a493AB6356497713A78FFA6c60FB53517c63",
-        daiToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+        assets: {
+            wethToken: {
+                address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+                decimals: 18,
+                symbol: "WETH",
+                name: "Wrapped Ether",
+                image: "https://imgs.search.brave.com/ViNj_1mofY7uPUeZRBaPe0Zoo6MRwndpdS1xlSbS_k8/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly93d3cu/Y3JpcHRvbW9uZWRh/cy5jby93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMS8wMS9ldGhl/cmV1bS1ldGgtbG9n/by5wbmc",
+            },
+            usdcToken: {
+                name: "USD Coin",
+                symbol: "USDC",
+                decimals: 6,
+                address: "0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C",
+                image: "https://imgs.search.brave.com/ViNj_1mofY7uPUeZRBaPe0Zoo6MRwndpdS1xlSbS_k8/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly93d3cu/Y3JpcHRvbW9uZWRh/cy5jby93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMS8wMS9ldGhl/cmV1bS1ldGgtbG9n/by5wbmc",
+            },
+            uniToken: {
+                name: "Uniswap Coin",
+                symbol: "UNI",
+                decimals: 18,
+                address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+                image: "https://imgs.search.brave.com/ViNj_1mofY7uPUeZRBaPe0Zoo6MRwndpdS1xlSbS_k8/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly93d3cu/Y3JpcHRvbW9uZWRh/cy5jby93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMS8wMS9ldGhl/cmV1bS1ldGgtbG9n/by5wbmc",
+            },
+        },
     },
 }
 

@@ -2,21 +2,24 @@ import React, { useState, useEffect } from "react"
 import { useMoralis, useWeb3Contract } from "react-moralis"
 import { ethers } from "ethers"
 import Navbar from "../components/NavBar/Navbar"
-import { loanAbi, loanAddresses } from "../constants"
+import { loanAbi, loanAddresses, ERC20Abi } from "../constants"
 import LiquidityCard from "../components/LiquidityCard/LiquidityCard"
 
 const asset = {
-    symbol: "ETH",
-    image: "https://imgs.search.brave.com/ViNj_1mofY7uPUeZRBaPe0Zoo6MRwndpdS1xlSbS_k8/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly93d3cu/Y3JpcHRvbW9uZWRh/cy5jby93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMS8wMS9ldGhl/cmV1bS1ldGgtbG9n/by5wbmc",
+    symbol: "LINK",
+    image: "https://imgs.search.brave.com/_BmTurtVVT2Ei1ux7DRw1zXQ8ZLoc-eX9slXXjUZUpo/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly9jcnlw/dG9sb2dvcy5jYy9s/b2dvcy9jaGFpbmxp/bmstbGluay1sb2dv/LnBuZw",
     id: "1",
-    value: 1600,
+    value: 1,
+    address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+    decimals: 18,
 }
 
-function Lend() {
+function addLiquidity() {
     const { chainId: chainIdHex, isWeb3Enabled, account } = useMoralis()
 
     const [assetsToCollatered, setAssetsToCollatered] = useState(0)
     const [loanBalance, setLoanBalance] = useState(0)
+    const [isApprovedToken, setApprovedToken] = useState(false)
     const [positions, setPositions] = useState([])
 
     const chainId = parseInt(chainIdHex)
@@ -24,12 +27,14 @@ function Lend() {
     const loanAddress =
         chainId in loanAddresses ? loanAddresses[chainId][0] : null
 
-    const { runContractFunction: lendETH } = useWeb3Contract({
+    const { runContractFunction: addLiquidity } = useWeb3Contract({
         abi: loanAbi,
         contractAddress: loanAddress,
-        functionName: "lendETH",
-        msgValue: ethers.utils.parseEther(assetsToCollatered.toString()),
-        params: {},
+        functionName: "depositTokens",
+        params: {
+            _amount: (assetsToCollatered * 10 ** asset.decimals).toString(),
+            _token: asset.address,
+        },
     })
 
     const { runContractFunction: balanceOf } = useWeb3Contract({
@@ -46,6 +51,26 @@ function Lend() {
         params: { _owner: account },
     })
 
+    const { runContractFunction: approve } = useWeb3Contract({
+        abi: ERC20Abi,
+        contractAddress: asset.address,
+        functionName: "approve",
+        params: {
+            amount: (assetsToCollatered * 10 ** asset.decimals).toString(),
+            spender: loanAddress,
+        },
+    })
+
+    const { runContractFunction: allowance } = useWeb3Contract({
+        abi: ERC20Abi,
+        contractAddress: asset.address,
+        functionName: "allowance",
+        params: {
+            _owner: account,
+            _spender: loanAddress,
+        },
+    })
+
     let handleInputChange = (e) => {
         if (e.currentTarget.value === "") {
             e.currentTarget.value = 0
@@ -56,12 +81,14 @@ function Lend() {
     async function updateUI() {
         const balance = await balanceOf()
         let loansOfOwner = await getLoansOfOwner()
+        const allowanceBalance = await allowance()
 
-        if (balance && loansOfOwner) {
+        if (balance && loansOfOwner && allowanceBalance) {
             loansOfOwner = loansOfOwner
                 .slice()
                 .filter((loan) => loan.loanType.toString() === "0")
             setLoanBalance(ethers.utils.formatEther(balance.toString()))
+            setAllowanceBalance(allowanceBalance)
             setPositions(loansOfOwner)
         }
     }
@@ -155,17 +182,33 @@ function Lend() {
                                 <div>$ {asset.value * loanBalance}</div>
                             </div>
                         </div>
-                        <button
-                            onClick={async () => {
-                                await lendETH({
-                                    onSuccess: () => setAssetsToCollatered(0),
-                                    onError: (error) => console.log(error),
-                                })
-                            }}
-                            className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500"
-                        >
-                            <span className="mx-auto">Add liquidity</span>
-                        </button>
+                        {!isApprovedToken ? (
+                            <button
+                                onClick={async () => {
+                                    await approve({
+                                        onSuccess: () => console.log("pepe"),
+                                        onError: (error) => console.log(error),
+                                    })
+                                    setApprovedToken(true)
+                                }}
+                                className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500"
+                            >
+                                <span className="mx-auto">Approve</span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={async () => {
+                                    await addLiquidity({
+                                        onSuccess: () =>
+                                            setAssetsToCollatered(0),
+                                        onError: (error) => console.log(error),
+                                    })
+                                }}
+                                className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500"
+                            >
+                                <span className="mx-auto">Add liquidity</span>
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="border-2 border-green-500 rounded-lg px-8 py-4 h-96 grid grid-rows-2 text-center bg-gray-50">
@@ -173,7 +216,6 @@ function Lend() {
                             Earn passive income with crypto.
                         </h1>
                         <p>
-                            {" "}
                             Leverage up your selected asset using <br />
                             our built in function.
                         </p>
@@ -184,4 +226,4 @@ function Lend() {
     )
 }
 
-export default Lend
+export default addLiquidity

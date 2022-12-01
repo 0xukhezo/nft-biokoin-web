@@ -7,8 +7,8 @@ import ConnectButton from "../ConnectButton/ConnectButton"
 
 const navigation = [
     { name: "Mint NFT", href: "mint" },
-    { name: "Add liquidity", href: "lend" },
-    { name: "Liquidity directed", href: "borrow" },
+    { name: "Add liquidity", href: "add-liquidity" },
+    { name: "Liquidity directed", href: "directed-liquidity" },
 ]
 
 function Navbar() {
