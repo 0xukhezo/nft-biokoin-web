@@ -11,10 +11,12 @@ import {
 import LeverageBar from "../../Bars/LeverageBar/LeverageBar"
 
 const asset = {
-    symbol: "ETH",
-    image: "https://imgs.search.brave.com/ViNj_1mofY7uPUeZRBaPe0Zoo6MRwndpdS1xlSbS_k8/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly93d3cu/Y3JpcHRvbW9uZWRh/cy5jby93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMS8wMS9ldGhl/cmV1bS1ldGgtbG9n/by5wbmc",
+    symbol: "USDC",
+    image: "https://imgs.search.brave.com/JXssxjDhwkYT7rZdMJFrlPG5eQ83wuqwa3PZ5iyzr2o/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly9jcnlw/dG9sb2dvcy5jYy9s/b2dvcy91c2QtY29p/bi11c2RjLWxvZ28u/cG5n",
     id: "1",
-    value: 1600,
+    value: 1,
+    address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+    decimals: 18,
 }
 
 export default function ModalERC721({
@@ -32,7 +34,7 @@ export default function ModalERC721({
 }) {
     const cancelButtonRef = useRef(null)
     const [open, setOpen] = useState(true)
-    const [isApprovedToken, setApprovedToken] = useState(false)
+    const [isApprovedNft, setApprovedNft] = useState(false)
     const [payPanelModal, setPayPanelModal] = useState(false)
     const [borrowPanelModal, setBorrowPanelModal] = useState(true)
     const [assetsToBorrow, setAssetsToBorrow] = useState(0)
@@ -48,7 +50,7 @@ export default function ModalERC721({
         limit = payOffAmountBorrowERC721
     }
 
-    const { chainId: chainIdHex } = useMoralis()
+    const { chainId: chainIdHex, account } = useMoralis()
 
     const chainId = parseInt(chainIdHex)
 
@@ -72,13 +74,13 @@ export default function ModalERC721({
         setETHPayed(e.currentTarget.value)
     }
 
-    const { runContractFunction: payETHLoan } = useWeb3Contract({
+    const { runContractFunction: payLoan } = useWeb3Contract({
         abi: loanAbi,
         contractAddress: loanAddress,
-        functionName: "payETHLoan",
-        msgValue: ethers.utils.parseEther(ETHPayed.toString()),
+        functionName: "pay",
         params: {
             _index: index,
+            _token: asset.address,
             _amount: ethers.utils.parseEther(ETHPayed.toString()),
         },
     })
@@ -90,15 +92,17 @@ export default function ModalERC721({
         params: {
             _amount: ethers.utils.parseEther(assetsToBorrow.toString()),
             _tokenId: tokenId,
+            _tokenA: asset.address,
         },
     })
 
-    const { runContractFunction: borrowETH } = useWeb3Contract({
+    const { runContractFunction: borrowToken } = useWeb3Contract({
         abi: loanAbi,
         contractAddress: loanAddress,
-        functionName: "borrowETH",
+        functionName: "borrow",
         params: {
             _index: index,
+            _token: asset.address,
             _amount: ethers.utils.parseEther(assetsToBorrow.toString()),
         },
     })
@@ -198,7 +202,7 @@ export default function ModalERC721({
                                             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                                 <div className="border-2 border-green-500 rounded-lg flex h-16 mt-6 w-96">
                                                     <div className="bg-slate-50 py-2 px-3 rounded-lg w-48">
-                                                        <div className="flex justify-between">
+                                                        <div className="flex justify-around">
                                                             <img
                                                                 src={
                                                                     asset.image
@@ -272,7 +276,7 @@ export default function ModalERC721({
                                                         Total in contract:
                                                     </div>
                                                     <div className="text-end ">
-                                                        {loanBalanceETH} ETH
+                                                        {loanBalanceETH} USDC
                                                     </div>
                                                     <div className="mb-2">
                                                         Total NFTs in contract:
@@ -284,7 +288,7 @@ export default function ModalERC721({
                                                         Total to borrow:
                                                     </div>
                                                     <div className="text-end ">
-                                                        {limit} ETH
+                                                        {limit} USDC
                                                     </div>
                                                     <div className="mb-2">
                                                         Maximum collateral
@@ -298,14 +302,14 @@ export default function ModalERC721({
                                                             : Number(
                                                                   payOffAmountBorrowERC721
                                                               )}{" "}
-                                                        ETH
+                                                        USDC
                                                     </div>
                                                 </div>
                                                 {limit >= assetsToBorrow ? (
                                                     <>
                                                         {borrowMode ? (
                                                             <>
-                                                                {!isApprovedToken ? (
+                                                                {!isApprovedNft ? (
                                                                     <button
                                                                         onClick={async () => {
                                                                             await approve(
@@ -324,7 +328,7 @@ export default function ModalERC721({
                                                                                             ),
                                                                                 }
                                                                             )
-                                                                            setApprovedToken(
+                                                                            setApprovedNft(
                                                                                 true
                                                                             )
                                                                         }}
@@ -332,7 +336,7 @@ export default function ModalERC721({
                                                                     >
                                                                         <span className="mx-auto">
                                                                             Approve
-                                                                            Token
+                                                                            NFT
                                                                         </span>
                                                                     </button>
                                                                 ) : (
@@ -362,7 +366,7 @@ export default function ModalERC721({
                                                                     >
                                                                         <span className="mx-auto">
                                                                             Borrow
-                                                                            ETH
+                                                                            USDC
                                                                         </span>
                                                                     </button>
                                                                 )}
@@ -370,7 +374,7 @@ export default function ModalERC721({
                                                         ) : (
                                                             <button
                                                                 onClick={async () => {
-                                                                    await borrowETH(
+                                                                    await borrowToken(
                                                                         {
                                                                             onSuccess:
                                                                                 () =>
@@ -393,7 +397,7 @@ export default function ModalERC721({
                                                                 className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500 my-4"
                                                             >
                                                                 <span className="mx-auto">
-                                                                    Borrow ETH
+                                                                    Borrow USDC
                                                                 </span>
                                                             </button>
                                                         )}
@@ -405,7 +409,7 @@ export default function ModalERC721({
                                                             disabled
                                                         >
                                                             <span className="mx-auto">
-                                                                Borrow ETH
+                                                                Borrow USDC
                                                             </span>
                                                         </button>
                                                         <p className="text-red-500 text-sm ">
@@ -425,7 +429,7 @@ export default function ModalERC721({
                                                                     : Number(
                                                                           payOffAmountBorrowERC721
                                                                       )}{" "}
-                                                                ETH
+                                                                USDC
                                                             </p>
                                                         </p>
                                                     </>
@@ -433,8 +437,8 @@ export default function ModalERC721({
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-2 gap-8 sm:items-start justify-center px-4 py-12 sm:p-6 sm:pb-4">
-                                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 mr-20 sm:text-left">
+                                        <div className="grid grid-cols-2 gap-8 sm:items-start justify-center px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                                 <div className="mt-3 text-center sm:mt-0 sm:text-left">
                                                     <div className="border-2 border-green-500 rounded-lg flex h-16 mt-6 w-96">
                                                         <p className="bg-slate-50 py-2 px-3 rounded-lg w-48">
@@ -492,7 +496,7 @@ export default function ModalERC721({
                                                 </div>
                                             </div>
 
-                                            <div className="border-2 border-green-500 rounded-lg px-8 py-4 row-span-2">
+                                            <div className="border-2 border-green-500 rounded-lg px-8 py-4 row-span-3">
                                                 <div className="px-16 py-2">
                                                     <div className="flex justify-between mt-2">
                                                         Collateral Asset Id:{" "}
@@ -502,14 +506,14 @@ export default function ModalERC721({
                                                     <div className="flex justify-between mt-2">
                                                         Inicial debt:{" "}
                                                         <span>
-                                                            {payAmount} ETH
+                                                            {payAmount} USDC
                                                         </span>
                                                     </div>
 
                                                     <div className="flex justify-between mt-2">
                                                         Debt payed:{" "}
                                                         <span>
-                                                            {payedAmount} ETH
+                                                            {payedAmount} USDC
                                                         </span>
                                                     </div>
 
@@ -518,7 +522,7 @@ export default function ModalERC721({
                                                         <span>
                                                             {payAmount -
                                                                 payedAmount}{" "}
-                                                            ETH
+                                                            USDC
                                                         </span>
                                                     </div>
                                                 </div>
@@ -528,7 +532,7 @@ export default function ModalERC721({
                                                     payedAmount ? (
                                                     <button
                                                         onClick={async () => {
-                                                            await payETHLoan({
+                                                            await payLoan({
                                                                 onSuccess: () =>
                                                                     getPanelModal(
                                                                         false
@@ -544,7 +548,7 @@ export default function ModalERC721({
                                                         className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500 my-4"
                                                     >
                                                         <span className="mx-auto">
-                                                            Pay
+                                                            Pay USDC
                                                         </span>
                                                     </button>
                                                 ) : (
@@ -566,7 +570,7 @@ export default function ModalERC721({
                                                             </p>
                                                             <p className="text-center">
                                                                 total debt{" "}
-                                                                {payAmount} ETH
+                                                                {payAmount} USDC
                                                             </p>
                                                         </p>
                                                     </>

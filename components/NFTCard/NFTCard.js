@@ -43,7 +43,7 @@ export default function NFTCard({
         abi: loanAbi,
         contractAddress: loanAddress,
         functionName: "balanceOf",
-        params: {},
+        params: { _token: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB" },
     })
 
     const { runContractFunction: balanceOfERC721 } = useWeb3Contract({
@@ -57,6 +57,7 @@ export default function NFTCard({
         const tokenURI = await getTokenURI()
         const loanETHBalance = await balanceOf()
         let loanERC721Balance = await balanceOfERC721()
+
         if (loanERC721Balance.toString() === "0") {
             loanERC721Balance = 1
         }
@@ -166,10 +167,10 @@ export default function NFTCard({
                                         Token ID: {tokenId}
                                     </div>
                                     <div className="col-span-2">
-                                        Borrow: {Number(ownerAsset)} ETH
+                                        Borrow: {Number(ownerAsset)} USDC
                                     </div>
                                     <div className="col-span-2">
-                                        In debt: {Number(payAmount)} ETH
+                                        In debt: {Number(payAmount)} USDC
                                     </div>
                                     <div>
                                         Liquidation Date:{" "}

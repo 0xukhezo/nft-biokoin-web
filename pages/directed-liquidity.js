@@ -115,8 +115,7 @@ function Borrow() {
                         <div className="border-2 border-green-500 rounded-lg px-4 py-4 mx-60 mt-20 text-center">
                             You do not have NFTs to leave as collaterals.
                             <div className="mt-4">
-                                {" "}
-                                Buy one{" "}
+                                Buy one
                                 <span className="text-green-500">here</span>.
                             </div>
                         </div>

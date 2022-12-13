@@ -25,7 +25,7 @@ async function swapTokens(
         signer,
         chainId
     )
-    console.log(liquidityPool)
+
     const poolContract = new ethers.Contract(
         liquidityPool,
         IUniswapV3PoolABI,

@@ -6,8 +6,8 @@ import { loanAbi, loanAddresses, ERC20Abi } from "../constants"
 import LiquidityCard from "../components/LiquidityCard/LiquidityCard"
 
 const asset = {
-    symbol: "LINK",
-    image: "https://imgs.search.brave.com/_BmTurtVVT2Ei1ux7DRw1zXQ8ZLoc-eX9slXXjUZUpo/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly9jcnlw/dG9sb2dvcy5jYy9s/b2dvcy9jaGFpbmxp/bmstbGluay1sb2dv/LnBuZw",
+    symbol: "USDC",
+    image: "https://imgs.search.brave.com/JXssxjDhwkYT7rZdMJFrlPG5eQ83wuqwa3PZ5iyzr2o/rs:fit:1200:1200:1/g:ce/aHR0cHM6Ly9jcnlw/dG9sb2dvcy5jYy9s/b2dvcy91c2QtY29p/bi11c2RjLWxvZ28u/cG5n",
     id: "1",
     value: 1,
     address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
@@ -30,7 +30,7 @@ function addLiquidity() {
     const { runContractFunction: addLiquidity } = useWeb3Contract({
         abi: loanAbi,
         contractAddress: loanAddress,
-        functionName: "depositTokens",
+        functionName: "addLiquidity",
         params: {
             _amount: (assetsToCollatered * 10 ** asset.decimals).toString(),
             _token: asset.address,
@@ -41,7 +41,7 @@ function addLiquidity() {
         abi: loanAbi,
         contractAddress: loanAddress,
         functionName: "balanceOf",
-        params: {},
+        params: { _token: asset.address },
     })
 
     const { runContractFunction: getLoansOfOwner } = useWeb3Contract({
@@ -61,16 +61,6 @@ function addLiquidity() {
         },
     })
 
-    const { runContractFunction: allowance } = useWeb3Contract({
-        abi: ERC20Abi,
-        contractAddress: asset.address,
-        functionName: "allowance",
-        params: {
-            _owner: account,
-            _spender: loanAddress,
-        },
-    })
-
     let handleInputChange = (e) => {
         if (e.currentTarget.value === "") {
             e.currentTarget.value = 0
@@ -81,14 +71,13 @@ function addLiquidity() {
     async function updateUI() {
         const balance = await balanceOf()
         let loansOfOwner = await getLoansOfOwner()
-        const allowanceBalance = await allowance()
 
-        if (balance && loansOfOwner && allowanceBalance) {
+        if (balance && loansOfOwner) {
             loansOfOwner = loansOfOwner
                 .slice()
                 .filter((loan) => loan.loanType.toString() === "0")
             setLoanBalance(ethers.utils.formatEther(balance.toString()))
-            setAllowanceBalance(allowanceBalance)
+
             setPositions(loansOfOwner)
         }
     }
@@ -153,7 +142,7 @@ function addLiquidity() {
                             </div>
                         ) : (
                             <div className="text-center mt-8 border-2 border-green-500 p-10 rounded-lg py-16">
-                                You do not have open positions. <br /> Add ETH
+                                You do not have open positions. <br /> Add USDC
                                 to the liquidity to generate one.
                             </div>
                         )}
@@ -165,7 +154,7 @@ function addLiquidity() {
                         <div className="grid grid-rows-2 grid-cols-2 text-center p-4 mb-14">
                             <div className="border-b-2 border-r-2 border-green-500 pb-3">
                                 Add to liquidity
-                                <div>{assetsToCollatered} ETH</div>
+                                <div>{assetsToCollatered} USDC</div>
                             </div>
                             <div className="border-b-2 border-green-500 pb-3">
                                 Collateral value
@@ -175,7 +164,7 @@ function addLiquidity() {
                             </div>
                             <div className="pt-3 border-r-2 border-green-500">
                                 Total in contract
-                                <div>{loanBalance} ETH</div>
+                                <div>{loanBalance} USDC</div>
                             </div>
                             <div className="pt-3">
                                 Total value
@@ -186,7 +175,7 @@ function addLiquidity() {
                             <button
                                 onClick={async () => {
                                     await approve({
-                                        onSuccess: () => console.log("pepe"),
+                                        onSuccess: () => console.log("done"),
                                         onError: (error) => console.log(error),
                                     })
                                     setApprovedToken(true)

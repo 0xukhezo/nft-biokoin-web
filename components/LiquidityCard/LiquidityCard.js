@@ -26,10 +26,10 @@ function LiquidityCard({ ownerAsset, payOffTimestamp, index }) {
         <div className="border-2 border-green-500 rounded-lg px-6 py-2 mt-2 bg-gray-50">
             <div className="flex items-center justify-between">
                 <div>
-                    Liquidity: <span>{Number(ownerAssetETH)} ETH</span>
+                    Liquidity: <span>{Number(ownerAssetETH)} USDC</span>
                 </div>
                 <div className="ml-4">
-                    Finish:{" "}
+                    Finish:
                     <span>{DateConverter(payOffTimestamp * 1000, true)}</span>
                 </div>
                 {Number(payOffTimestamp) > currentEpochDate ? (
@@ -37,7 +37,7 @@ function LiquidityCard({ ownerAsset, payOffTimestamp, index }) {
                         disabled
                         className="bg-green-200 py-2 px-3 rounded-lg w-48 text-gray-700"
                     >
-                        Claim ETH
+                        Claim USDC
                     </button>
                 ) : (
                     <button
@@ -49,7 +49,7 @@ function LiquidityCard({ ownerAsset, payOffTimestamp, index }) {
                         }
                         className="bg-green-600 py-2 px-2 rounded-lg w-48 text-white "
                     >
-                        Claim ETH
+                        Claim USDC
                     </button>
                 )}
             </div>
