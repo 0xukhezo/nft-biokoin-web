@@ -1,19 +1,22 @@
 import React from "react"
 
 function LeverageBar({ inicialLeverage, currentLeverage = 0, finalLeverage }) {
+    let totalLeverage
+
     if (currentLeverage > finalLeverage) {
         currentLeverage = finalLeverage
     }
     if (currentLeverage < 0) {
         currentLeverage = 0
     }
+
     return (
         <>
             <div className="relative pt-1 ">
                 <div className="flex justify-between">
                     <div>Leverage</div>
                     <div>
-                        {currentLeverage}/{finalLeverage}
+                        {currentLeverage} / {finalLeverage.toFixed(3)}
                     </div>
                 </div>
 
@@ -28,8 +31,8 @@ function LeverageBar({ inicialLeverage, currentLeverage = 0, finalLeverage }) {
                     />
                 </div>
                 <div className="flex justify-between">
-                    <div>{inicialLeverage}</div>
-                    <div>{finalLeverage}</div>
+                    <div>{inicialLeverage.toFixed(3)}</div>
+                    <div>{finalLeverage.toFixed(3)}</div>
                 </div>
             </div>
         </>

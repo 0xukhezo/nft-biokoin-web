@@ -7,8 +7,11 @@ import {
     bioKoinAbi,
     loanAddresses,
     bioKoinAddresses,
+    ERC20Abi,
 } from "../../../constants"
+
 import LeverageBar from "../../Bars/LeverageBar/LeverageBar"
+import ModalERC20 from "../ModalERC20/ModalERC20"
 
 const asset = {
     symbol: "USDC",
@@ -35,6 +38,7 @@ export default function ModalERC721({
     const cancelButtonRef = useRef(null)
     const [open, setOpen] = useState(true)
     const [isApprovedNft, setApprovedNft] = useState(false)
+    const [isApprovedToken, setApprovedToken] = useState(false)
     const [payPanelModal, setPayPanelModal] = useState(false)
     const [borrowPanelModal, setBorrowPanelModal] = useState(true)
     const [assetsToBorrow, setAssetsToBorrow] = useState(0)
@@ -90,9 +94,10 @@ export default function ModalERC721({
         contractAddress: loanAddress,
         functionName: "collateredERC721",
         params: {
+            _tokenA: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+            _tokenB: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
             _amount: ethers.utils.parseEther(assetsToBorrow.toString()),
             _tokenId: tokenId,
-            _tokenA: asset.address,
         },
     })
 
@@ -112,6 +117,16 @@ export default function ModalERC721({
         contractAddress: bioKoinAddress,
         functionName: "approve",
         params: { to: loanAddress, tokenId: tokenId },
+    })
+
+    const { runContractFunction: approveToken } = useWeb3Contract({
+        abi: ERC20Abi,
+        contractAddress: asset.address,
+        functionName: "approve",
+        params: {
+            amount: (ETHPayed * 10 ** asset.decimals).toString(),
+            spender: loanAddress,
+        },
     })
 
     return (
@@ -136,7 +151,7 @@ export default function ModalERC721({
                 >
                     <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
                 </Transition.Child>
-
+                {isApprovedNft && <ModalERC20 />}
                 <div className="fixed inset-0 z-10 overflow-y-auto">
                     <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                         <Transition.Child
@@ -249,7 +264,9 @@ export default function ModalERC721({
                                                                       assetsToBorrow
                                                                   ) -
                                                                   payedAmount
-                                                                : assetsToBorrow
+                                                                : Number(
+                                                                      assetsToBorrow
+                                                                  ).toFixed(3)
                                                         }
                                                         finalLeverage={
                                                             !borrowMode
@@ -276,7 +293,10 @@ export default function ModalERC721({
                                                         Total in contract:
                                                     </div>
                                                     <div className="text-end ">
-                                                        {loanBalanceETH} USDC
+                                                        {loanBalanceETH.toFixed(
+                                                            3
+                                                        )}{" "}
+                                                        USDC
                                                     </div>
                                                     <div className="mb-2">
                                                         Total NFTs in contract:
@@ -288,7 +308,7 @@ export default function ModalERC721({
                                                         Total to borrow:
                                                     </div>
                                                     <div className="text-end ">
-                                                        {limit} USDC
+                                                        {limit.toFixed(3)} USDC
                                                     </div>
                                                     <div className="mb-2">
                                                         Maximum collateral
@@ -298,10 +318,10 @@ export default function ModalERC721({
                                                         {!borrowMode
                                                             ? Number(
                                                                   payOffAmount
-                                                              )
+                                                              ).toFixed(3)
                                                             : Number(
                                                                   payOffAmountBorrowERC721
-                                                              )}{" "}
+                                                              ).toFixed(3)}{" "}
                                                         USDC
                                                     </div>
                                                 </div>
@@ -530,27 +550,59 @@ export default function ModalERC721({
                                                 {Number(ETHPayed) <=
                                                 Number(payAmount) -
                                                     payedAmount ? (
-                                                    <button
-                                                        onClick={async () => {
-                                                            await payLoan({
-                                                                onSuccess: () =>
-                                                                    getPanelModal(
-                                                                        false
-                                                                    ),
-                                                                onError: (
-                                                                    error
-                                                                ) =>
-                                                                    console.log(
+                                                    !isApprovedToken ? (
+                                                        <button
+                                                            onClick={async () => {
+                                                                await approveToken(
+                                                                    {
+                                                                        onSuccess:
+                                                                            () =>
+                                                                                console.log(
+                                                                                    "Done"
+                                                                                ),
+                                                                        onError:
+                                                                            (
+                                                                                error
+                                                                            ) =>
+                                                                                console.log(
+                                                                                    error
+                                                                                ),
+                                                                    }
+                                                                )
+                                                                setApprovedToken(
+                                                                    true
+                                                                )
+                                                            }}
+                                                            className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500 my-4"
+                                                        >
+                                                            <span className="mx-auto">
+                                                                Approve USDC
+                                                            </span>
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={async () => {
+                                                                await payLoan({
+                                                                    onSuccess:
+                                                                        () =>
+                                                                            getPanelModal(
+                                                                                false
+                                                                            ),
+                                                                    onError: (
                                                                         error
-                                                                    ),
-                                                            })
-                                                        }}
-                                                        className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500 my-4"
-                                                    >
-                                                        <span className="mx-auto">
-                                                            Pay USDC
-                                                        </span>
-                                                    </button>
+                                                                    ) =>
+                                                                        console.log(
+                                                                            error
+                                                                        ),
+                                                                })
+                                                            }}
+                                                            className="flex mx-auto py-2 px-3 rounded-lg w-48 border-2 border-green-600 bg-green-600 my-4 text-white text-semibold hover:bg-green-500 hover:border-green-500 my-4"
+                                                        >
+                                                            <span className="mx-auto">
+                                                                Pay USDC
+                                                            </span>
+                                                        </button>
+                                                    )
                                                 ) : (
                                                     <>
                                                         <button

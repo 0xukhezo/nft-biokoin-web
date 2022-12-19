@@ -9,9 +9,7 @@ function EpochBar({ finalEpochDate, currentEpochDate, inicialEpochDate }) {
                     <div
                         style={{
                             width: `${
-                                ((finalEpochDate - currentEpochDate / 1000) *
-                                    10000) /
-                                finalEpochDate
+                                currentEpochDate / (finalEpochDate * 10)
                             }%`,
                         }}
                         className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500"

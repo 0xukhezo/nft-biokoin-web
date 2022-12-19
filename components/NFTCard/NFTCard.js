@@ -167,10 +167,12 @@ export default function NFTCard({
                                         Token ID: {tokenId}
                                     </div>
                                     <div className="col-span-2">
-                                        Borrow: {Number(ownerAsset)} USDC
+                                        Borrow: {Number(ownerAsset).toFixed(3)}
+                                        USDC
                                     </div>
                                     <div className="col-span-2">
-                                        In debt: {Number(payAmount)} USDC
+                                        In debt: {Number(payAmount).toFixed(3)}
+                                        USDC
                                     </div>
                                     <div>
                                         Liquidation Date:{" "}

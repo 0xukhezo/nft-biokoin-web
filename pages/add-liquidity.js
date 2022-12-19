@@ -159,16 +159,21 @@ function addLiquidity() {
                             <div className="border-b-2 border-green-500 pb-3">
                                 Collateral value
                                 <div>
-                                    $ {Number(assetsToCollatered) * asset.value}
+                                    $
+                                    {(
+                                        Number(assetsToCollatered) * asset.value
+                                    ).toFixed(3)}
                                 </div>
                             </div>
                             <div className="pt-3 border-r-2 border-green-500">
                                 Total in contract
-                                <div>{loanBalance} USDC</div>
+                                <div>{Number(loanBalance).toFixed(3)} USDC</div>
                             </div>
                             <div className="pt-3">
                                 Total value
-                                <div>$ {asset.value * loanBalance}</div>
+                                <div>
+                                    $ {(asset.value * loanBalance).toFixed(3)}
+                                </div>
                             </div>
                         </div>
                         {!isApprovedToken ? (

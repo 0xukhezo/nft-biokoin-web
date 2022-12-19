@@ -54,36 +54,17 @@ export default function ModalERC20({ getPanelModal, getAsset }) {
                                                 as="h3"
                                                 className="text-lg font-medium leading-6 text-gray-900"
                                             >
-                                                Select Loan Asset
+                                                Select Uniswap Pair Pool
                                             </Dialog.Title>
-                                            <div className="mt-10">
-                                                {assets?.map((asset) => {
-                                                    return (
-                                                        <button
-                                                            name="symbol"
-                                                            className="flex w-full align-center mb-4 border-b-2 border-gray-100 pb-4"
-                                                            key={asset.symbol}
-                                                            onClick={() => {
-                                                                getAsset(
-                                                                    asset.symbol
-                                                                )
-                                                                getPanelModal(
-                                                                    false
-                                                                )
-                                                            }}
-                                                        >
-                                                            <img
-                                                                src={
-                                                                    asset.image
-                                                                }
-                                                                className="rounded-full h-8 w-8"
-                                                            />
-                                                            <span className="ml-4">
-                                                                {asset.symbol}
-                                                            </span>
-                                                        </button>
-                                                    )
-                                                })}
+                                            <div className="mt-4">
+                                                <button
+                                                    className="font-semibold text-xl p-2 rounded-lg hover:bg-gray-100"
+                                                    onClick={() =>
+                                                        setOpen(false)
+                                                    }
+                                                >
+                                                    USDC / ETH 0.3%
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
