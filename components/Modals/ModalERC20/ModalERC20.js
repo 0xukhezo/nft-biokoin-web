@@ -11,8 +11,6 @@ export default function ModalERC20({ getPanelModal, getAsset }) {
     const [open, setOpen] = useState(true)
     const cancelButtonRef = useRef(null)
 
-    let assets = networkConfig[chainId].assets
-
     return (
         <Transition.Root show={open} as={Fragment}>
             <Dialog
@@ -58,12 +56,20 @@ export default function ModalERC20({ getPanelModal, getAsset }) {
                                             </Dialog.Title>
                                             <div className="mt-4">
                                                 <button
-                                                    className="font-semibold text-xl p-2 rounded-lg hover:bg-gray-100"
+                                                    className="rounded-lg hover:border-2 hover:border-gray-500 p-0.5 my-1"
                                                     onClick={() =>
                                                         setOpen(false)
                                                     }
                                                 >
-                                                    USDC / ETH 0.3%
+                                                    <img src="./USDC-ETH-03.png" />
+                                                </button>
+                                                <button
+                                                    className="rounded-lg hover:border-2 hover:border-gray-500 p-0.5 my-1"
+                                                    onClick={() =>
+                                                        setOpen(false)
+                                                    }
+                                                >
+                                                    <img src="./USDC-ETH-005.png" />
                                                 </button>
                                             </div>
                                         </div>

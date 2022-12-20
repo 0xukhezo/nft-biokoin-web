@@ -8,6 +8,7 @@ import {
     loanAddresses,
     bioKoinAddresses,
     ERC20Abi,
+    LPAbi,
 } from "../../../constants"
 
 import LeverageBar from "../../Bars/LeverageBar/LeverageBar"
@@ -37,6 +38,7 @@ export default function ModalERC721({
 }) {
     const cancelButtonRef = useRef(null)
     const [open, setOpen] = useState(true)
+    const [LPbalance, setLPBalance] = useState(0)
     const [isApprovedNft, setApprovedNft] = useState(false)
     const [isApprovedToken, setApprovedToken] = useState(false)
     const [payPanelModal, setPayPanelModal] = useState(false)
@@ -54,7 +56,7 @@ export default function ModalERC721({
         limit = payOffAmountBorrowERC721
     }
 
-    const { chainId: chainIdHex, account } = useMoralis()
+    const { chainId: chainIdHex, account, isWeb3Enabled } = useMoralis()
 
     const chainId = parseInt(chainIdHex)
 
@@ -86,6 +88,15 @@ export default function ModalERC721({
             _index: index,
             _token: asset.address,
             _amount: ethers.utils.parseEther(ETHPayed.toString()),
+        },
+    })
+
+    const { runContractFunction: balanceOfLP } = useWeb3Contract({
+        abi: LPAbi,
+        contractAddress: "0x32bE40dC4Db907aCf18773bfC81F1bFFA92B77c2",
+        functionName: "balanceOf",
+        params: {
+            "": loanAddress,
         },
     })
 
@@ -128,6 +139,20 @@ export default function ModalERC721({
             spender: loanAddress,
         },
     })
+
+    async function updateUI() {
+        const LPBalance = await balanceOfLP()
+
+        if (LPBalance) {
+            setLPBalance(LPBalance)
+        }
+    }
+
+    useEffect(() => {
+        if (isWeb3Enabled) {
+            updateUI()
+        }
+    }, [isWeb3Enabled])
 
     return (
         <Transition.Root show={open} as={Fragment}>
@@ -181,7 +206,7 @@ export default function ModalERC721({
                                                         : "text-lg font-medium leading-6 text-gray-900 bg-gray-100 text-center px-4 pt-5 pb-4 sm:p-6 sm:pb-4"
                                                 }
                                             >
-                                                Borrow
+                                                Stake
                                             </Dialog.Title>
                                         </button>
                                         <button
@@ -207,7 +232,7 @@ export default function ModalERC721({
                                                             : "text-gray-900"
                                                     }
                                                 >
-                                                    Pay
+                                                    UnStake
                                                 </span>
                                             </Dialog.Title>
                                         </button>
@@ -323,6 +348,22 @@ export default function ModalERC721({
                                                                   payOffAmountBorrowERC721
                                                               ).toFixed(3)}{" "}
                                                         USDC
+                                                    </div>
+                                                    <div className="mb-2">
+                                                        LP Tokens:
+                                                    </div>
+                                                    <div className="text-end ">
+                                                        {!borrowMode ? (
+                                                            <div>
+                                                                {Number(
+                                                                    ethers.utils.formatEther(
+                                                                        LPbalance
+                                                                    )
+                                                                ).toFixed(3)}
+                                                            </div>
+                                                        ) : (
+                                                            <div>-</div>
+                                                        )}{" "}
                                                     </div>
                                                 </div>
                                                 {limit >= assetsToBorrow ? (
